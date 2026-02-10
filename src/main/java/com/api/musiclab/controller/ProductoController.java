@@ -25,7 +25,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  *
- * @author davidlema
+ * @author danig
  */
 @RestController
 public class ProductoController {
