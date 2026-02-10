@@ -1,0 +1,35 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ */
+package com.api.musiclab.repository;
+
+import com.api.musiclab.dto.ProductoDTO;
+import com.api.musiclab.entities.Producto;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+/**
+ *
+ * @author danig
+ */
+public interface ProductoRepository extends JpaRepository<Producto, Long>{
+    
+    // Buscar producto por nombre
+    @Query("""
+           SELECT p FROM Producto p
+           WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
+              OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :q, '%'))
+           """)
+    Page<Producto> search(@Param("q") String q, Pageable pageable);
+    
+    List<Producto> findBySubCategoriaId(Long subCategoriaId);
+     
+    List<Producto> findByStockGreaterThan(int stock);
+     
+    List<Producto> findByPrecioBetween(double min, double max);
+}
