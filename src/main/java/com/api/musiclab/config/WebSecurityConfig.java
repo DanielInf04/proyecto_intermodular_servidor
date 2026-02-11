@@ -39,11 +39,16 @@ public class WebSecurityConfig {
                 // Público (solo lectura)
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()                       
                 // Solo ADMIN
+                .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+
                 // Usuarios autenticados (lo que quede)
                 .requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
