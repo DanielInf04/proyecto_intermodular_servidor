@@ -36,18 +36,33 @@ public class WebSecurityConfig {
         http
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
+                        
                 // Público (solo lectura)
                 .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        
                 // Solo ADMIN
+                        
+                // Productos
                 .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                // Categorias
+                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+                // Subcategorias
+                .requestMatchers(HttpMethod.POST, "/api/subcategories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/subcategories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/subcategories/**").hasRole("ADMIN")
+                        
                 // Usuarios autenticados (lo que quede)
                 .requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 )
+                
                 //.csrf().disable()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
