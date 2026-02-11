@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotNull;
  * @author danig
  */
 public class SubCategoriaRequest {
-    
+
     @NotBlank
     private String nombre;
 
@@ -21,13 +21,28 @@ public class SubCategoriaRequest {
     @NotNull
     private Long categoriaId;
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public String getImagenUrl() { return imagenUrl; }
-    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public Long getCategoriaId() { return categoriaId; }
-    public void setCategoriaId(Long categoriaId) { this.categoriaId = categoriaId; }
-    
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
+    }
+
+    public Long getCategoriaId() {
+        return categoriaId;
+    }
+
+    public void setCategoriaId(Long categoriaId) {
+        this.categoriaId = categoriaId;
+    }
+
 }

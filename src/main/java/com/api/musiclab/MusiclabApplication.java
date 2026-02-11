@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class MusiclabApplication {
@@ -24,6 +25,7 @@ public class MusiclabApplication {
         ProductoRepository productoRepository = context.getBean(ProductoRepository.class);
         CestaRepository cestaRepository = context.getBean(CestaRepository.class);
         LineaCestaRepository lineaCestaRepository = context.getBean(LineaCestaRepository.class);
+        PasswordEncoder encoder = context.getBean(PasswordEncoder.class);
 
         // ======================
         // USUARIOS
@@ -31,7 +33,7 @@ public class MusiclabApplication {
         Usuario u1 = new Usuario();
         u1.setUsername("carlos");
         u1.setEmail("carlos@musiclab.com");
-        u1.setPassword("1234");
+        u1.setPassword(encoder.encode("1234"));
         u1.setRole("USER");
         u1.setFechaAlta(LocalDate.now());
         usuarioRepository.save(u1);
@@ -39,7 +41,7 @@ public class MusiclabApplication {
         Usuario u2 = new Usuario();
         u2.setUsername("laura");
         u2.setEmail("laura@musiclab.com");
-        u2.setPassword("1234");
+        u2.setPassword(encoder.encode("1234"));
         u2.setRole("ADMIN");
         u2.setFechaAlta(LocalDate.now());
         usuarioRepository.save(u2);

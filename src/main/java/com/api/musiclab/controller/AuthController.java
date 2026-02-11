@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.api.musiclab.controller;
 
 import com.api.musiclab.dto.LoginRequest;
@@ -10,27 +6,28 @@ import com.api.musiclab.entities.Usuario;
 import com.api.musiclab.repository.UsuarioRepository;
 import com.api.musiclab.security.JwtUtil;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author danig
- */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin
 public class AuthController {
-    
-    private final UsuarioRepository usuarioRepository;
 
-    public AuthController(UsuarioRepository usuarioRepository) {
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder; // ← inyectamos correctamente
+
+    @Autowired
+    public AuthController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -45,8 +42,8 @@ public class AuthController {
 
         Usuario usuario = usuarioOpt.get();
 
-        // ⚠️ Password en plano (como tu proyecto ahora)
-        if (!usuario.getPassword().equals(request.getPassword())) {
+        // ✅ Comprobamos contraseña con BCrypt
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Usuario o contraseña incorrectos");
         }
@@ -58,5 +55,5 @@ public class AuthController {
 
         return ResponseEntity.ok(new LoginResponse(token));
     }
-    
+
 }
