@@ -126,6 +126,28 @@ public class SubCategoriaController {
     }*/
     
     @GetMapping("/subcategories/{id}")
+    public ResponseEntity<SubCategoriaDTO> obtener(@PathVariable Long id) {
+
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        return subCategoriaRepository.findById(id)
+                .map(sc -> {
+                    SubCategoriaDTO dto = new SubCategoriaDTO(sc);
+
+                    // Si la imagen viene como "/uploads/..." la convertimos a absoluta
+                    if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
+                        dto.setImagenUrl(baseUrl + dto.getImagenUrl());
+                    }
+
+                    return ResponseEntity.ok(dto);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    /*@GetMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoria> obtener(@PathVariable Long id) {
         return subCategoriaRepository.findById(id)
                 .map(sc -> {
@@ -142,7 +164,7 @@ public class SubCategoriaController {
                     return ResponseEntity.ok(sc);
                 })
                 .orElse(ResponseEntity.notFound().build());
-    }
+    }*/
     
     @GetMapping("/categories/{categoryId}/subcategories")
     public ResponseEntity<List<SubCategoriaDTO>> listarPorCategoria(@PathVariable Long categoryId) {

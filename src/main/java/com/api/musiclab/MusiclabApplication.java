@@ -354,6 +354,166 @@ public class MusiclabApplication {
         p12.setImagen("/images/products/arius.jpg");
         p12.setSubCategoria(subPianos);
         productoRepository.save(p12);
+        
+        Producto p13 = new Producto();
+        p13.setNombre("Fender Player Telecaster");
+        p13.setMarca("Fender");
+        p13.setStock(5);
+        p13.setPrecio(749.99);
+        p13.setDescripcion("Guitarra eléctrica versátil con el clásico twang de Telecaster.");
+        p13.setImagen("/images/products/fender_player_telecaster.jpg");
+        p13.setSubCategoria(subGuitElec);
+        productoRepository.save(p13);
+
+        Producto p14 = new Producto();
+        p14.setNombre("Fender Player Jazzmaster");
+        p14.setMarca("Fender");
+        p14.setStock(4);
+        p14.setPrecio(829.99);
+        p14.setDescripcion("Guitarra con sonido cálido y estética vintage alternativa.");
+        p14.setImagen("/images/products/fender_jazzmaster.jpg");
+        p14.setSubCategoria(subGuitElec);
+        productoRepository.save(p14);
+        
+        Producto p15 = new Producto();
+        p15.setNombre("Fender Mustang Player");
+        p15.setMarca("Fender");
+        p15.setStock(6);
+        p15.setPrecio(699.99);
+        p15.setDescripcion("Modelo compacto y cómodo ideal para estilos indie y rock.");
+        p15.setImagen("/images/products/fender_mustang.jpg");
+        p15.setSubCategoria(subGuitElec);
+        productoRepository.save(p15);
+
+        /*Producto p16 = new Producto();
+        p16.setNombre("Gibson SG Standard");
+        p16.setMarca("Gibson");
+        p16.setStock(3);
+        p16.setPrecio(1399.99);
+        p16.setDescripcion("Guitarra ligera con potente sustain y acceso cómodo a trastes altos.");
+        p16.setImagen("/images/products/gibson_sg_standard.jpg");
+        p16.setSubCategoria(subGuitElec);
+        productoRepository.save(p16);
+
+        Producto p17 = new Producto();
+        p17.setNombre("Gibson Flying V");
+        p17.setMarca("Gibson");
+        p17.setStock(2);
+        p17.setPrecio(1599.99);
+        p17.setDescripcion("Diseño icónico con sonido agresivo ideal para rock y metal.");
+        p17.setImagen("/images/products/gibson_flying_v.jpg");
+        p17.setSubCategoria(subGuitElec);
+        productoRepository.save(p17);
+
+        Producto p18 = new Producto();
+        p18.setNombre("Epiphone Les Paul Standard 60s");
+        p18.setMarca("Epiphone");
+        p18.setStock(7);
+        p18.setPrecio(599.99);
+        p18.setDescripcion("Versión asequible del clásico Les Paul con gran sustain.");
+        p18.setImagen("/images/products/epiphone_les_paul_standard_60s.jpg");
+        p18.setSubCategoria(subGuitElec);
+        productoRepository.save(p18);
+
+        Producto p19 = new Producto();
+        p19.setNombre("Epiphone SG Standard");
+        p19.setMarca("Epiphone");
+        p19.setStock(6);
+        p19.setPrecio(499.99);
+        p19.setDescripcion("Modelo ligero con sonido potente y diseño clásico.");
+        p19.setImagen("/images/products/epiphone_sg_standard.jpg");
+        p19.setSubCategoria(subGuitElec);
+        productoRepository.save(p19);
+
+        Producto p20 = new Producto();
+        p20.setNombre("PRS SE McCarty 594");
+        p20.setMarca("PRS");
+        p20.setStock(4);
+        p20.setPrecio(899.99);
+        p20.setDescripcion("Guitarra versátil con excelente acabado y tono vintage moderno.");
+        p20.setImagen("/images/products/prs_se_mccarty_594.jpg");
+        p20.setSubCategoria(subGuitElec);
+        productoRepository.save(p20);
+
+        Producto p21 = new Producto();
+        p21.setNombre("Ibanez RG550");
+        p21.setMarca("Ibanez");
+        p21.setStock(5);
+        p21.setPrecio(999.99);
+        p21.setDescripcion("Modelo rápido y cómodo ideal para shred y metal técnico.");
+        p21.setImagen("/images/products/ibanez_rg550.jpg");
+        p21.setSubCategoria(subGuitElec);
+        productoRepository.save(p21);
+
+        Producto p22 = new Producto();
+        p22.setNombre("Ibanez AZES40");
+        p22.setMarca("Ibanez");
+        p22.setStock(8);
+        p22.setPrecio(349.99);
+        p22.setDescripcion("Guitarra versátil con gran comodidad para principiantes y avanzados.");
+        p22.setImagen("/images/products/ibanez_azes40.jpg");
+        p22.setSubCategoria(subGuitElec);
+        productoRepository.save(p22);
+
+        Producto p23 = new Producto();
+        p23.setNombre("ESP LTD EC-256");
+        p23.setMarca("ESP LTD");
+        p23.setStock(6);
+        p23.setPrecio(459.99);
+        p23.setDescripcion("Guitarra de cuerpo sólido con sonido potente y acabado elegante.");
+        p23.setImagen("/images/products/esp_ltd_ec256.jpg");
+        p23.setSubCategoria(subGuitElec);
+        productoRepository.save(p23);
+
+        Producto p24 = new Producto();
+        p24.setNombre("ESP LTD M-1000");
+        p24.setMarca("ESP LTD");
+        p24.setStock(3);
+        p24.setPrecio(1099.99);
+        p24.setDescripcion("Modelo profesional orientado a estilos modernos y metal.");
+        p24.setImagen("/images/products/esp_ltd_m1000.jpg");
+        p24.setSubCategoria(subGuitElec);
+        productoRepository.save(p24);
+
+        Producto p25 = new Producto();
+        p25.setNombre("Schecter Omen-6");
+        p25.setMarca("Schecter");
+        p25.setStock(7);
+        p25.setPrecio(399.99);
+        p25.setDescripcion("Guitarra ideal para rock y metal con gran relación calidad-precio.");
+        p25.setImagen("/images/products/schecter_omen6.jpg");
+        p25.setSubCategoria(subGuitElec);
+        productoRepository.save(p25);
+
+        Producto p26 = new Producto();
+        p26.setNombre("Schecter C-6 Deluxe");
+        p26.setMarca("Schecter");
+        p26.setStock(6);
+        p26.setPrecio(449.99);
+        p26.setDescripcion("Modelo moderno con buena estabilidad y sonido definido.");
+        p26.setImagen("/images/products/schecter_c6_deluxe.jpg");
+        p26.setSubCategoria(subGuitElec);
+        productoRepository.save(p26);
+
+        Producto p27 = new Producto();
+        p27.setNombre("Yamaha Pacifica 112V");
+        p27.setMarca("Yamaha");
+        p27.setStock(9);
+        p27.setPrecio(329.99);
+        p27.setDescripcion("Guitarra versátil perfecta para iniciarse en la eléctrica.");
+        p27.setImagen("/images/products/yamaha_pacifica_112v.jpg");
+        p27.setSubCategoria(subGuitElec);
+        productoRepository.save(p27);
+
+        Producto p28 = new Producto();
+        p28.setNombre("Charvel Pro-Mod DK24");
+        p28.setMarca("Charvel");
+        p28.setStock(3);
+        p28.setPrecio(1049.99);
+        p28.setDescripcion("Guitarra moderna de alto rendimiento con gran comodidad.");
+        p28.setImagen("/images/products/charvel_dk24.jpg");
+        p28.setSubCategoria(subGuitElec);
+        productoRepository.save(p28);*/
        
          // ======================
         // CESTAS (FK user_id)

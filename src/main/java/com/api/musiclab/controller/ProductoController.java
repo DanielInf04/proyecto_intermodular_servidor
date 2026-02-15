@@ -127,17 +127,26 @@ public class ProductoController {
         }
     }
 
-    //Buscamos un instrumento por categoria
-    @GetMapping("/api/products/category/{id}")
-    public ResponseEntity<List<Producto>> findByCategoria(@PathVariable Long id) {
+    //Buscamos un instrumento por subcategoria
+    @GetMapping("/api/products/subcategory/{id}")
+    public ResponseEntity<List<ProductoDTO>> findBySubCategoria(@PathVariable Long id) {
 
-        List<Producto> instrumentos = repository.findBySubCategoriaId(id);
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
 
-        if (instrumentos.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        List<ProductoDTO> productos = repository.findBySubCategoriaId(id)
+                .stream()
+                .map(ProductoDTO::new)
+                .peek(dto -> {
+                    if (dto.getImagen() != null && dto.getImagen().startsWith("/")) {
+                        dto.setImagen(baseUrl + dto.getImagen());
+                    }
+                })
+                .toList();
 
-        return ResponseEntity.ok(instrumentos);
+        return ResponseEntity.ok(productos); // 200 aunque esté vacío
     }
 
     // filtro para mostrar únicamente productos disponibles

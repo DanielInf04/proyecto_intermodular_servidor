@@ -4,6 +4,7 @@
  */
 package com.api.musiclab.repository;
 
+import com.api.musiclab.entities.Producto;
 import com.api.musiclab.entities.SubCategoria;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -19,4 +20,5 @@ public interface SubCategoriaRepository extends JpaRepository<SubCategoria, Long
     Page<SubCategoria> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
     
     List<SubCategoria> findByCategoriaId(Long categoriaId);
+    
 }
