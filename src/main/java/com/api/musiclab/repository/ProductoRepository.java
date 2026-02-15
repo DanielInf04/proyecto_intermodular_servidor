@@ -22,8 +22,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     // Buscar producto por nombre
     @Query("""
            SELECT p FROM Producto p
+           LEFT JOIN p.subCategoria sc
            WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-              OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :q, '%'))
+              OR LOWER(sc.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
            """)
     Page<Producto> search(@Param("q") String q, Pageable pageable);
     

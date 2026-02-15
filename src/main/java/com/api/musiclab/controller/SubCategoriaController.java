@@ -4,6 +4,7 @@
  */
 package com.api.musiclab.controller;
 
+import com.api.musiclab.dto.SubCategoriaDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.api.musiclab.dto.SubCategoriaRequest;
@@ -59,6 +60,42 @@ public class SubCategoriaController {
     }
     
     @GetMapping("/subcategories")
+    public ResponseEntity<List<SubCategoriaDTO>> listar(
+            @RequestParam(name = "q", required = false) String q,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        Page<SubCategoria> page;
+
+        if (q != null && !q.isBlank()) {
+            page = subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable);
+        } else {
+            page = subCategoriaRepository.findAll(pageable);
+        }
+
+        List<SubCategoriaDTO> dtoList = page.getContent().stream()
+                .map(sc -> {
+                    SubCategoriaDTO dto = new SubCategoriaDTO(sc);
+                    // si la imagen viene como "/uploads/..." la convertimos a absoluta
+                    if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
+                        dto.setImagenUrl(baseUrl + dto.getImagenUrl());
+                    }
+                    return dto;
+                })
+                .toList();
+
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(page.getTotalElements()))
+                .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
+                .body(dtoList);
+    }
+
+    
+    /*@GetMapping("/subcategories")
     public ResponseEntity<List<SubCategoria>> listar(
             @RequestParam(name = "q", required = false) String q,
             @PageableDefault(size = 10) Pageable pageable
@@ -86,7 +123,7 @@ public class SubCategoriaController {
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
                 .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
                 .body(page.getContent());
-    }
+    }*/
     
     @GetMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoria> obtener(@PathVariable Long id) {
@@ -108,13 +145,31 @@ public class SubCategoriaController {
     }
     
     @GetMapping("/categories/{categoryId}/subcategories")
-    public ResponseEntity<List<SubCategoria>> listarPorCategoria(@PathVariable Long categoryId) {
-        // opcional: validar que la categoría exista
+    public ResponseEntity<List<SubCategoriaDTO>> listarPorCategoria(@PathVariable Long categoryId) {
+
         if (!categoriaRepository.existsById(categoryId)) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(subCategoriaRepository.findByCategoriaId(categoryId));
+
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        List<SubCategoriaDTO> dtoList = subCategoriaRepository.findByCategoriaId(categoryId)
+                .stream()
+                .map(sc -> {
+                    SubCategoriaDTO dto = new SubCategoriaDTO(sc);
+                    if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
+                        dto.setImagenUrl(baseUrl + dto.getImagenUrl());
+                    }
+                    return dto;
+                })
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
     }
+
     
     @PostMapping("/subcategories")
     public ResponseEntity<?> crear(@Valid @RequestBody SubCategoriaRequest req) {
