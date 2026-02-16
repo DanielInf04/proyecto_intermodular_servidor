@@ -41,9 +41,10 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
                 // Público (solo lectura)
-                .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                //.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                 
                 // Solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
