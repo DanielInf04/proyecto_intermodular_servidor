@@ -36,39 +36,24 @@ public class WebSecurityConfig {
         http
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        
+                
+                // Preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
                 // Público (solo lectura)
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/images/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/subcategories/**").permitAll()
-                        
+                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                
                 // Solo ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
                         
-                // Productos
-                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                // Categorias
-                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
-                // Subcategorias
-                .requestMatchers(HttpMethod.POST, "/api/subcategories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/subcategories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/subcategories/**").hasRole("ADMIN")
-                // Usuarios
-                .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/users").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-                        
-                // Usuarios autenticados (lo que quede)
-                .requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
+                // Todo lo demás autenticado
                 .anyRequest().authenticated()
                 )
                 
-                //.csrf().disable()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         // @formatter:on

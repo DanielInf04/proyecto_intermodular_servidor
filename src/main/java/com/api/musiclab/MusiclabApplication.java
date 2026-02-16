@@ -385,7 +385,7 @@ public class MusiclabApplication {
         p15.setSubCategoria(subGuitElec);
         productoRepository.save(p15);
 
-        /*Producto p16 = new Producto();
+        Producto p16 = new Producto();
         p16.setNombre("Gibson SG Standard");
         p16.setMarca("Gibson");
         p16.setStock(3);
@@ -495,7 +495,7 @@ public class MusiclabApplication {
         p26.setSubCategoria(subGuitElec);
         productoRepository.save(p26);
 
-        Producto p27 = new Producto();
+        /*Producto p27 = new Producto();
         p27.setNombre("Yamaha Pacifica 112V");
         p27.setMarca("Yamaha");
         p27.setStock(9);

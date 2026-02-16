@@ -5,7 +5,9 @@
 package com.api.musiclab.controller;
 
 import com.api.musiclab.dto.ProductoDTO;
+import com.api.musiclab.dto.ProductoRequest;
 import com.api.musiclab.entities.Producto;
+import com.api.musiclab.entities.SubCategoria;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
@@ -18,25 +20,42 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.api.musiclab.repository.ProductoRepository;
+import com.api.musiclab.repository.SubCategoriaRepository;
+import jakarta.validation.Valid;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  *
  * @author danig
  */
+
 @RestController
+@RequestMapping("/api")
 public class ProductoController {
 
+    private static final Path UPLOAD_DIR =
+        Paths.get("uploads", "products").toAbsolutePath().normalize();
+    
     private final ProductoRepository repository;
+    private final SubCategoriaRepository subCategoriaRepository;
 
-    public ProductoController(ProductoRepository repository) {
+    public ProductoController(ProductoRepository repository, SubCategoriaRepository subCategoriaRepository) {
         this.repository = repository;
+        this.subCategoriaRepository = subCategoriaRepository;
     }
     
-    @GetMapping("/api/products")
+    @GetMapping("/products")
     public ResponseEntity<List<ProductoDTO>> listar(
             @RequestParam(name = "q", required = false) String q,
             @PageableDefault(size = 10) Pageable pageable
@@ -70,7 +89,7 @@ public class ProductoController {
     }
     
     // Obtener un producto por su id
-    @GetMapping("/api/products/{id}")
+    @GetMapping("/products/{id}")
     public ResponseEntity<ProductoDTO> findById(@PathVariable Long id) {
         
         String baseUrl = ServletUriComponentsBuilder
@@ -90,9 +109,29 @@ public class ProductoController {
             })
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
+    
+    @PostMapping("/products")
+    public ResponseEntity<?> create(@Valid @RequestBody ProductoRequest req) {
+        
+        Producto p = new Producto();
+        p.setNombre(req.getNombre().trim());
+        p.setMarca(req.getMarca().trim());
+        p.setPrecio(req.getPrecio());
+        p.setStock(req.getStock());
+        p.setDescripcion(req.getDescripcion() == null ? "" : req.getDescripcion().trim());
+        
+        SubCategoria sc = subCategoriaRepository.findById(req.getSubcategoriaId()).orElse(null);
+        if (sc == null) return ResponseEntity.notFound().build();
+        
+        p.setSubCategoria(sc);
+        
+        p.setImagen(null);
+        
+        return ResponseEntity.ok(repository.save(p));
+    }
 
     //Crear un instrumento
-    @PostMapping("/api/products")
+    /*@PostMapping("/api/products")
     public ResponseEntity<Producto> create(@RequestBody Producto instrumento) {
         if (instrumento.getId() != null) {
             return ResponseEntity.badRequest().build();
@@ -100,10 +139,63 @@ public class ProductoController {
             Producto instrumentoSaved = repository.save(instrumento);
             return ResponseEntity.ok(instrumentoSaved);
         }
+    }*/
+    
+    // Actualizar un producto
+    @PutMapping("/products/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody ProductoRequest req) {
+
+        Producto existente = repository.findById(id).orElse(null);
+        if (existente == null) return ResponseEntity.notFound().build();
+
+        existente.setNombre(req.getNombre().trim());
+        existente.setMarca(req.getMarca().trim());
+        existente.setPrecio(req.getPrecio());
+        existente.setStock(req.getStock());
+        existente.setDescripcion(req.getDescripcion() == null ? "" : req.getDescripcion().trim());
+        
+        SubCategoria sc = subCategoriaRepository.findById(req.getSubcategoriaId()).orElse(null);
+        if (sc == null) return ResponseEntity.notFound().build();
+
+        existente.setSubCategoria(sc);
+
+        // actualizar subcategoría igual que en create (sin tocar imagen)
+        return ResponseEntity.ok(repository.save(existente));
+    }
+    
+    @PutMapping(value = "/products/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImage(@PathVariable Long id,
+                                         @RequestParam("file") MultipartFile file) throws Exception {
+
+        Producto p = repository.findById(id).orElse(null);
+        if (p == null) return ResponseEntity.notFound().build();
+
+        if (file == null || file.isEmpty()) return ResponseEntity.badRequest().body("Archivo vacío");
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            return ResponseEntity.badRequest().body("El archivo debe ser una imagen");
+        }
+
+        Files.createDirectories(UPLOAD_DIR);
+
+        // borrar anterior
+        borrarImagenSiExiste(p.getImagen());
+
+        String ext = Optional.ofNullable(file.getOriginalFilename())
+                .filter(n -> n.contains("."))
+                .map(n -> n.substring(n.lastIndexOf(".")))
+                .orElse("");
+
+        String filename = "product-" + id + "-" + UUID.randomUUID() + ext;
+        Path path = UPLOAD_DIR.resolve(filename).normalize();
+
+        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+        p.setImagen("/images/products/" + filename);
+        return ResponseEntity.ok(repository.save(p));
     }
 
     //Modifico un instrumento
-    @PutMapping("/api/products/{id}")
+    /*@PutMapping("/api/products/{id}")
     public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -112,10 +204,41 @@ public class ProductoController {
             Producto instrumentoSaved = repository.save(producto);
             return ResponseEntity.ok(instrumentoSaved);
         }
+    }*/
+    
+    private void borrarImagenSiExiste(String imagenUrl) {
+        if (imagenUrl == null || imagenUrl.isBlank()) return;
+
+        try {
+            String filename = imagenUrl.substring(imagenUrl.lastIndexOf('/') + 1);
+            int q = filename.indexOf('?');
+            if (q >= 0) filename = filename.substring(0, q);
+
+            Path filePath = UPLOAD_DIR.resolve(filename).normalize();
+
+            if (!filePath.startsWith(UPLOAD_DIR)) return;
+
+            Files.deleteIfExists(filePath);
+        } catch (Exception e) {
+            System.err.println("No se pudo borrar imagen: " + imagenUrl + " -> " + e.getMessage());
+        }
+    }
+    
+    // Eliminar un producto
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        var opt = repository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        var p = opt.get();
+        borrarImagenSiExiste(p.getImagen());
+        repository.delete(p);
+
+        return ResponseEntity.noContent().build();
     }
 
     //Eliminar un instrumento
-    @DeleteMapping("/api/products/{id}")
+    /*@DeleteMapping("/api/products/{id}")
     public ResponseEntity<Producto> delete(@PathVariable Long id) {
         //Comprueba que no existe para devolver el error notFound
         if (!repository.existsById(id)) {
@@ -125,10 +248,10 @@ public class ProductoController {
             //El build genera el objeto
             return ResponseEntity.noContent().build();
         }
-    }
+    }*/
 
     //Buscamos un instrumento por subcategoria
-    @GetMapping("/api/products/subcategory/{id}")
+    @GetMapping("/products/subcategory/{id}")
     public ResponseEntity<List<ProductoDTO>> findBySubCategoria(@PathVariable Long id) {
 
         String baseUrl = ServletUriComponentsBuilder
@@ -150,7 +273,7 @@ public class ProductoController {
     }
 
     // filtro para mostrar únicamente productos disponibles
-    @GetMapping("/api/products/stock")
+    @GetMapping("/products/stock")
     public ResponseEntity<List<Producto>> findWithStock() {
 
         List<Producto> instrumentos = repository.findByStockGreaterThan(0);
@@ -162,7 +285,7 @@ public class ProductoController {
         return ResponseEntity.ok(instrumentos);
     }
 
-    @GetMapping("/api/products/precio")
+    @GetMapping("/products/precio")
     public ResponseEntity<List<Producto>> findByPrecio(
             @RequestParam double min,
             @RequestParam double max) {

@@ -19,13 +19,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
     // Excluir login y GET públicos
-    if (path.equals("/auth/login")) {
+    if (path.equals("/auth/login")) return true;
+    
+    // Imagenes públicas
+    if (path.startsWith("/images/")) return true;
+    
+    // Solo GET públicos
+    if (request.getMethod().equalsIgnoreCase("GET") &&
+        (path.startsWith("/api/products")
+         || path.startsWith("/api/categories")
+         || path.startsWith("/api/subcategories")
+         || path.startsWith("/api/categories/"))) {
         return true;
     }
-    if ((path.startsWith("/api/products") || path.startsWith("/api/categories"))
+    
+    // Comprobación ( (A || B) || (C && isGET) ) return true;
+    /*if ((path.startsWith("/api/products") || path.startsWith("/api/categories")) || path.startsWith("/api/subcategories")
             && request.getMethod().equalsIgnoreCase("GET")) {
         return true;
-    }
+    }*/
     return false;
 }
 
@@ -33,6 +45,13 @@ protected boolean shouldNotFilter(HttpServletRequest request) throws ServletExce
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+       
+        if (request.getServletPath().startsWith("/api/products")
+            && !request.getMethod().equalsIgnoreCase("GET")) {
+          System.out.println("JWT FILTER HIT -> " + request.getMethod() + " " + request.getServletPath()
+              + " AUTH=" + request.getHeader("Authorization"));
+        }
+
         // 1. Obtener el token del header
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
