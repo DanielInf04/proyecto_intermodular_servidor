@@ -19,6 +19,14 @@ public interface SubCategoriaRepository extends JpaRepository<SubCategoria, Long
     // Buscar una subcategoria por nombre
     Page<SubCategoria> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
     
+    Page<SubCategoria> findByCategoriaIdAndNombreContainingIgnoreCase(
+            Long categoriaId,
+            String nombre,
+            Pageable pageable
+    );
+    
+    Page<SubCategoria> findByCategoriaId(Long categoriaId, Pageable pageable);
+    
     List<SubCategoria> findByCategoriaId(Long categoriaId);
     
 }

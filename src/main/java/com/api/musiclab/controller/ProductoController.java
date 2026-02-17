@@ -57,6 +57,39 @@ public class ProductoController {
     
     @GetMapping("/products")
     public ResponseEntity<List<ProductoDTO>> listar(
+            @RequestParam(required = false) String q,
+            @RequestParam(name = "cId", required = false) Long cId,
+            @RequestParam(name = "scId", required = false) Long scId,
+            @RequestParam(name = "stock", required = false) String stock, // ✅
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String qq = (q == null || q.isBlank()) ? null : q.trim();
+
+        // low = stock <= 5 (puedes cambiarlo)
+        Integer minStock = null;
+        Integer maxStock = null;
+
+        if ("in".equalsIgnoreCase(stock)) minStock = 1;
+        if ("out".equalsIgnoreCase(stock)) maxStock = 0;
+        if ("low".equalsIgnoreCase(stock)) { minStock = 1; maxStock = 5; }
+
+        Page<Producto> page = repository.search(qq, cId, scId, minStock, maxStock, pageable);
+
+        List<ProductoDTO> dtoList = page.getContent().stream().map(p -> {
+            ProductoDTO dto = new ProductoDTO(p);
+            if (dto.getImagen() != null && dto.getImagen().startsWith("/")) dto.setImagen(baseUrl + dto.getImagen());
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(page.getTotalElements()))
+                .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
+                .body(dtoList);
+    }
+    
+    /*@GetMapping("/products")
+    public ResponseEntity<List<ProductoDTO>> listar(
             @RequestParam(name = "q", required = false) String q,
             @PageableDefault(size = 10) Pageable pageable
     ) {
@@ -86,7 +119,7 @@ public class ProductoController {
                 .header("X-Total-Pages", String.valueOf(dtoPage.getTotalPages()))
                 .body(dtoPage.getContent());
         
-    }
+    }*/
     
     // Obtener un producto por su id
     @GetMapping("/products/{id}")

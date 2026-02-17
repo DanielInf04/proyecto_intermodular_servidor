@@ -62,36 +62,38 @@ public class SubCategoriaController {
     @GetMapping("/subcategories")
     public ResponseEntity<List<SubCategoriaDTO>> listar(
             @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "cId", required = false) Long cId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString();
-
-        Page<SubCategoria> page;
-
-        if (q != null && !q.isBlank()) {
-            page = subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable);
-        } else {
-            page = subCategoriaRepository.findAll(pageable);
-        }
-
-        List<SubCategoriaDTO> dtoList = page.getContent().stream()
-                .map(sc -> {
-                    SubCategoriaDTO dto = new SubCategoriaDTO(sc);
-                    // si la imagen viene como "/uploads/..." la convertimos a absoluta
-                    if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
-                        dto.setImagenUrl(baseUrl + dto.getImagenUrl());
-                    }
-                    return dto;
-                })
-                .toList();
+            .fromCurrentContextPath()
+            .build()
+            .toUriString();
+        
+         Page<SubCategoria> page = 
+            (cId != null && q != null && !q.isBlank())
+                ? subCategoriaRepository.findByCategoriaIdAndNombreContainingIgnoreCase(cId, q.trim(), pageable)
+            : (cId != null)
+                ? subCategoriaRepository.findByCategoriaId(cId, pageable)
+            : (q != null && !q.isBlank())
+                ? subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable)
+            : subCategoriaRepository.findAll(pageable);
+         
+         List<SubCategoriaDTO> dtoList = page.getContent().stream()
+            .map(sc -> {
+                SubCategoriaDTO dto = new SubCategoriaDTO(sc);
+                if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
+                    dto.setImagenUrl(baseUrl + dto.getImagenUrl());
+                }
+                return dto;
+            })
+            .toList();
 
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
                 .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
                 .body(dtoList);
+                
     }
     
     @GetMapping("/subcategories/{id}")

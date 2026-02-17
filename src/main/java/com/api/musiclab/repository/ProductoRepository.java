@@ -20,13 +20,39 @@ import org.springframework.data.repository.query.Param;
 public interface ProductoRepository extends JpaRepository<Producto, Long>{
     
     // Buscar producto por nombre
-    @Query("""
+    /*@Query("""
            SELECT p FROM Producto p
            LEFT JOIN p.subCategoria sc
            WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
               OR LOWER(sc.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
            """)
-    Page<Producto> search(@Param("q") String q, Pageable pageable);
+    Page<Producto> search(@Param("q") String q, Pageable pageable);*/
+    
+    @Query("""
+        SELECT p
+        FROM Producto p
+        LEFT JOIN p.subCategoria sc
+        LEFT JOIN sc.categoria c
+        WHERE (
+              :q IS NULL OR
+              LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR
+              LOWER(sc.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
+        )
+        AND (:cId IS NULL OR c.id = :cId)
+        AND (:scId IS NULL OR sc.id = :scId)
+        AND (:minStock IS NULL OR p.stock >= :minStock)
+        AND (:maxStock IS NULL OR p.stock <= :maxStock)
+    """)
+    Page<Producto> search(
+        @Param("q") String q,
+        @Param("cId") Long cId,
+        @Param("scId") Long scId,
+        @Param("minStock") Integer minStock,
+        @Param("maxStock") Integer maxStock,
+        Pageable pageable
+    );
+
+    // 
     
     List<Producto> findBySubCategoriaId(Long subCategoriaId);
      
