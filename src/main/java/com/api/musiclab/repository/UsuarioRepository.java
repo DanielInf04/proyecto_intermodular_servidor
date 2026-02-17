@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
-    Optional<Usuario> findByUsername(String username);
+    Optional<Usuario> findByUsername(String username); // -> Después quitar
 
     boolean existsByUsername(String username);
 

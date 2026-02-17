@@ -34,7 +34,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(request.getUsername());
+        //Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(request.getUsername());
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(request.getEmail());
 
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

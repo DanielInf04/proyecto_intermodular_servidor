@@ -93,37 +93,6 @@ public class SubCategoriaController {
                 .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
                 .body(dtoList);
     }
-
-    
-    /*@GetMapping("/subcategories")
-    public ResponseEntity<List<SubCategoria>> listar(
-            @RequestParam(name = "q", required = false) String q,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString();
-
-        Page<SubCategoria> page;
-        
-        if (q != null && !q.isBlank()) {
-            page = subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable);
-        } else {
-            page = subCategoriaRepository.findAll(pageable);
-        }
-
-        page.getContent().forEach(sc -> {
-            if (sc.getImagenUrl() != null && sc.getImagenUrl().startsWith("/")) {
-                sc.setImagenUrl(baseUrl + sc.getImagenUrl());
-            }
-        });
-        
-        return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(page.getTotalElements()))
-                .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
-                .body(page.getContent());
-    }*/
     
     @GetMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoriaDTO> obtener(@PathVariable Long id) {
@@ -146,25 +115,6 @@ public class SubCategoriaController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    
-    /*@GetMapping("/subcategories/{id}")
-    public ResponseEntity<SubCategoria> obtener(@PathVariable Long id) {
-        return subCategoriaRepository.findById(id)
-                .map(sc -> {
-                    String baseUrl = ServletUriComponentsBuilder
-                            .fromCurrentContextPath()
-                            .build()
-                            .toUriString();
-
-                    String img = sc.getImagenUrl();
-                    if (img != null && img.startsWith("/")) {
-                        sc.setImagenUrl(baseUrl + img);
-                    }
-
-                    return ResponseEntity.ok(sc);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }*/
     
     @GetMapping("/categories/{categoryId}/subcategories")
     public ResponseEntity<List<SubCategoriaDTO>> listarPorCategoria(@PathVariable Long categoryId) {
