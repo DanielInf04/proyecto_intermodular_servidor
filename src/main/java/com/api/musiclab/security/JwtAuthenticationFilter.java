@@ -19,7 +19,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
     // Excluir login y GET públicos
-    if (path.equals("/auth/login")) return true;
+    if (path.equals("/auth/")) return true;
     
     // Imagenes públicas
     if (path.startsWith("/images/")) return true;

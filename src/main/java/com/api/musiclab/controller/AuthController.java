@@ -5,6 +5,7 @@ import com.api.musiclab.dto.LoginResponse;
 import com.api.musiclab.entities.Usuario;
 import com.api.musiclab.repository.UsuarioRepository;
 import com.api.musiclab.security.JwtUtil;
+import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,25 @@ public class AuthController {
         );
 
         return ResponseEntity.ok(new LoginResponse(token));
+    }
+    
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Usuario usuario) {
+
+        // Verificar si ya existe el username
+        if (usuarioRepository.findByUsername(usuario.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("El usuario ya existe");
+        }
+
+        // Encriptar contraseña
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
+        // Asignar rol por defecto
+        usuario.setRole("USER");
+        usuario.setFechaAlta(LocalDate.now());
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok(usuarioGuardado);
     }
 
 }

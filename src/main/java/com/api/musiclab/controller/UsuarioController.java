@@ -4,6 +4,7 @@
  */
 package com.api.musiclab.controller;
 
+import com.api.musiclab.dto.UsuarioDTO;
 import com.api.musiclab.entities.Usuario;
 import com.api.musiclab.repository.UsuarioRepository;
 import java.util.List;
@@ -26,7 +27,15 @@ public class UsuarioController{
     }
     
     @GetMapping("/api/users")
-    public List<Usuario> getAll() {
-        return repository.findAll();
-    }
+    public List<UsuarioDTO> getAll() {
+    return repository.findAll()
+            .stream()
+            .map(usuario -> new UsuarioDTO(
+                    usuario.getId(),
+                    usuario.getUsername(),
+                    usuario.getEmail(),
+                    usuario.getFechaAlta()
+            ))
+            .toList();
+}
 }
