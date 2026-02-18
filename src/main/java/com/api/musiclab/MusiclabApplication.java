@@ -1860,18 +1860,18 @@ public class MusiclabApplication {
          // ======================
         // CESTAS (FK user_id)
         // ======================
-        Cesta cesta1 = new Cesta();
+        /*Cesta cesta1 = new Cesta();
         cesta1.setUserId(u1.getId());
         cestaRepository.save(cesta1);
 
         Cesta cesta2 = new Cesta();
         cesta2.setUserId(u2.getId());
-        cestaRepository.save(cesta2);
+        cestaRepository.save(cesta2);*/
         
         // ======================
         // LÍNEAS DE CESTA
         // ======================
-        LineaCesta l1 = new LineaCesta();
+        /*LineaCesta l1 = new LineaCesta();
         l1.setCesta(cesta1);
         l1.setProducto(p1);
         l1.setCantidad(1);
@@ -1890,11 +1890,11 @@ public class MusiclabApplication {
         l3.setProducto(p5);
         l3.setCantidad(2);
         l3.setPrecioUnitario(p5.getPrecio());
-        lineaCestaRepository.save(l3);
+        lineaCestaRepository.save(l3);*/
 
         System.out.println("Categorias creadas: " + categoriaRepository.count());
-        System.out.println("Instrumentos creados: " + productoRepository.count());
-        System.out.println("Pedidos creados: " + cestaRepository.count());
-        System.out.println("Lineas de pedido creadas: " + lineaCestaRepository.count());
+        System.out.println("Productos creados: " + productoRepository.count());
+        //System.out.println("Pedidos creados: " + cestaRepository.count());
+        //System.out.println("Lineas de pedido creadas: " + lineaCestaRepository.count());
     }
 }

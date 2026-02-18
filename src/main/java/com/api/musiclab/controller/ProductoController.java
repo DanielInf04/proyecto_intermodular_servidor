@@ -4,6 +4,10 @@
  */
 package com.api.musiclab.controller;
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.api.musiclab.dto.ProductoDTO;
 import com.api.musiclab.dto.ProductoRequest;
 import com.api.musiclab.entities.Producto;
@@ -30,6 +34,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
@@ -259,13 +264,21 @@ public class ProductoController {
     
     // Eliminar un producto
     @DeleteMapping("/products/{id}")
+    @Transactional
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        var opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        var p = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        var p = opt.get();
-        borrarImagenSiExiste(p.getImagen());
+        String imageUrl = p.getImagen(); // guarda antes
+
         repository.delete(p);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                borrarImagenSiExiste(imageUrl);
+            }
+        });
 
         return ResponseEntity.noContent().build();
     }
