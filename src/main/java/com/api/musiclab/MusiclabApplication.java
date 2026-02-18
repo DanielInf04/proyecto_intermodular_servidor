@@ -39,8 +39,8 @@ public class MusiclabApplication {
         usuarioRepository.save(u1);
 
         Usuario u2 = new Usuario();
-        u2.setUsername("laura");
-        u2.setEmail("laura@musiclab.com");
+        u2.setUsername("Admin");
+        u2.setEmail("admin@musiclab.com");
         u2.setPassword(encoder.encode("1234"));
         u2.setRole("ADMIN");
         u2.setFechaAlta(LocalDate.now());
