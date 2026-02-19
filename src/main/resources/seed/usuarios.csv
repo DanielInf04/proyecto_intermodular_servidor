@@ -1,0 +1,4 @@
+"fecha_alta","id","provider","role","username","google_sub","email","password"
+"2026-02-19","1",NULL,"USER","carlos",NULL,"carlos@musiclab.com","$2a$10$ECmD/kbICJUrdj0ubbZPlebBi5f1ZO.7mo3jnCBTp821ACneVKrAa"
+"2026-02-19","2",NULL,"ADMIN","Admin",NULL,"admin@musiclab.com","$2a$10$PWapGBQRz4w1lItmerpHc.pyBGWTtEPWtFQhwW4bi0HfLOWsUvPfq"
+"2026-02-19","3",NULL,"USER","Daniel",NULL,"daniel@gmail.com","$2a$10$ka5P17GxtDeOWN7CK2q2Jucn.RiJKltI.dnYt0224k0HZjmZytrQG"

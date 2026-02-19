@@ -12,25 +12,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class MusiclabApplication {
 
     public static void main(String[] args) {
-        ApplicationContext context = SpringApplication.run(MusiclabApplication.class, args);
-        System.out.println("API iniciada correctamente de MusicLab");
-        System.out.println("WORKDIR = " + java.nio.file.Paths.get("").toAbsolutePath());
+        SpringApplication.run(MusiclabApplication.class, args);
+        //ApplicationContext context = SpringApplication.run(MusiclabApplication.class, args);
+        //System.out.println("API iniciada correctamente de MusicLab");
+        //System.out.println("WORKDIR = " + java.nio.file.Paths.get("").toAbsolutePath());
 
         // ======================
         // REPOSITORIES
         // ======================
-        UsuarioRepository usuarioRepository = context.getBean(UsuarioRepository.class);
+        /*UsuarioRepository usuarioRepository = context.getBean(UsuarioRepository.class);
         CategoriaRepository categoriaRepository = context.getBean(CategoriaRepository.class);
         SubCategoriaRepository subCategoriaRepository = context.getBean(SubCategoriaRepository.class);
         ProductoRepository productoRepository = context.getBean(ProductoRepository.class);
         CestaRepository cestaRepository = context.getBean(CestaRepository.class);
         LineaCestaRepository lineaCestaRepository = context.getBean(LineaCestaRepository.class);
-        PasswordEncoder encoder = context.getBean(PasswordEncoder.class);
+        PasswordEncoder encoder = context.getBean(PasswordEncoder.class);*/
 
         // ======================
         // USUARIOS
         // ======================
-        Usuario u1 = new Usuario();
+        /*Usuario u1 = new Usuario();
         u1.setUsername("carlos");
         u1.setEmail("carlos@musiclab.com");
         u1.setPassword(encoder.encode("1234"));
@@ -1854,16 +1855,7 @@ public class MusiclabApplication {
         p164.setDescripcion("Batería electrónica con apariencia acústica y tecnología avanzada.");
         p164.setImagen("/images/products/roland_vad307.jpg");
         p164.setSubCategoria(subBateriasElectronicas);
-        productoRepository.save(p164);
-
-
-
-
-
-
-
-        
-        
+        productoRepository.save(p164);*/
        
          // ======================
         // CESTAS (FK user_id)
@@ -1900,8 +1892,8 @@ public class MusiclabApplication {
         l3.setPrecioUnitario(p5.getPrecio());
         lineaCestaRepository.save(l3);*/
 
-        System.out.println("Categorias creadas: " + categoriaRepository.count());
-        System.out.println("Productos creados: " + productoRepository.count());
+        //System.out.println("Categorias creadas: " + categoriaRepository.count());
+        //System.out.println("Productos creados: " + productoRepository.count());
         //System.out.println("Pedidos creados: " + cestaRepository.count());
         //System.out.println("Lineas de pedido creadas: " + lineaCestaRepository.count());
     }
