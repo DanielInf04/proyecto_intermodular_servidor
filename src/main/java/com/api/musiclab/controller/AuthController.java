@@ -1,5 +1,6 @@
 package com.api.musiclab.controller;
 
+import com.api.musiclab.dto.ApiResponse;
 import com.api.musiclab.dto.GoogleLoginRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -7,9 +8,11 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import com.api.musiclab.dto.LoginRequest;
 import com.api.musiclab.dto.LoginResponse;
+import com.api.musiclab.dto.RegisterRequest;
 import com.api.musiclab.entities.Usuario;
 import com.api.musiclab.repository.UsuarioRepository;
 import com.api.musiclab.security.JwtUtil;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,23 +98,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
 
-        //Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(request.getUsername());
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(request.getEmail());
+        String email = request.getEmail().trim().toLowerCase();
 
-        if (usuarioOpt.isEmpty()) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+
+        // misma respuesta para "no existe" y "password mal"
+        if (usuarioOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), usuarioOpt.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Usuario o contraseña incorrectos");
+                    .body(new ApiResponse("Credenciales inválidas"));
         }
 
         Usuario usuario = usuarioOpt.get();
-
-        // ✅ Comprobamos contraseña con BCrypt
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Usuario o contraseña incorrectos");
-        }
 
         String token = JwtUtil.generateToken(
                 usuario.getUsername(),
@@ -123,6 +122,29 @@ public class AuthController {
     }
     
     @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse("El correo  ya está registrado"));
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setUsername(request.getUsername().trim());
+        usuario.setEmail(request.getEmail().trim().toLowerCase());
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        usuario.setRole("USER");
+        usuario.setFechaAlta(LocalDate.now());
+
+        usuarioRepository.save(usuario);
+
+        // No devuelvas el usuario entero (incluye password)
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse("Usuario creado correctamente"));
+    }
+    
+    /*@PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Usuario usuario) {
 
         // Verificar si ya existe el username
@@ -139,6 +161,6 @@ public class AuthController {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         return ResponseEntity.ok(usuarioGuardado);
-    }
+    }*/
 
 }
