@@ -15,16 +15,17 @@ public class UsuarioDTO {
     private Long id;
     private String username;
     private String email;
+    private String role;
     private LocalDate fechaAlta;
 
-    public UsuarioDTO(Long id, String username, String email, LocalDate fechaAlta) {
+    public UsuarioDTO(Long id, String username, String email, String role, LocalDate fechaAlta) {
         this.id = id;
         this.username = username;
         this.email = email;
+        this.role = role;
         this.fechaAlta = fechaAlta;
     }
 
-    // getters
     public Long getId() {
         return id;
     }
@@ -37,8 +38,11 @@ public class UsuarioDTO {
         return email;
     }
 
+    public String getRole() {
+        return role;
+    }
+
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }
 }
-
