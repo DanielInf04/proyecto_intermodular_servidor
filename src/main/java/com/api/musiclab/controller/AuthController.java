@@ -1,5 +1,10 @@
 package com.api.musiclab.controller;
 
+import com.api.musiclab.dto.GoogleLoginRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import com.api.musiclab.dto.LoginRequest;
 import com.api.musiclab.dto.LoginResponse;
 import com.api.musiclab.entities.Usuario;
@@ -24,11 +29,69 @@ public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder; // ← inyectamos correctamente
+    private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
     @Autowired
-    public AuthController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(UsuarioRepository usuarioRepository, 
+                            PasswordEncoder passwordEncoder,
+                            GoogleIdTokenVerifier googleIdTokenVerifier) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.googleIdTokenVerifier = googleIdTokenVerifier;
+    }
+    
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request)
+        throws GeneralSecurityException, IOException {
+        
+        if (request.getIdToken() == null || request.getIdToken().isBlank()) {
+            return ResponseEntity.badRequest().body("idToken requerido");
+        }
+        
+        GoogleIdToken idToken = googleIdTokenVerifier.verify(request.getIdToken());
+        if (idToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token de Google inválido");
+        }
+        
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        
+        String email = payload.getEmail();
+        String sub = payload.getSubject();
+        Boolean emailVerified = (Boolean) payload.get("email_verified");
+        
+        if (email == null || sub == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token sin email/sub");
+        }
+        
+        // Buscar por googleSub
+        Usuario usuario = usuarioRepository.findByGoogleSub(sub).orElse(null);
+        
+        // Si no existe por googleSub, intenta vincular por email
+        if (usuario == null) {
+            usuario = usuarioRepository.findByEmail(email).orElse(null);
+            
+            if (usuario != null) {
+                // Vinculamos a una cuenta existente
+                usuario.setGoogleSub(sub);
+                usuario.setProvider("GOOGLE");
+            } else {
+                // Creamos un usuario nuevo
+                Usuario nuevo = new Usuario();
+                nuevo.setEmail(email);
+                nuevo.setUsername(email.split("@")[0]);
+                nuevo.setRole("USER");
+                nuevo.setFechaAlta(LocalDate.now());
+                nuevo.setGoogleSub(sub);
+                nuevo.setProvider("GOOGLE");
+                nuevo.setPassword(null);
+                usuario = usuarioRepository.save(nuevo);
+            }
+            
+            usuario = usuarioRepository.save(usuario);
+        }
+        
+        String token = JwtUtil.generateToken(usuario.getUsername(), usuario.getEmail(), usuario.getRole());
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 
     @PostMapping("/login")

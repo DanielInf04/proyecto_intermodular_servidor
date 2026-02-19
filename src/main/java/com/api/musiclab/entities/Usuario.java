@@ -30,8 +30,14 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
+    
+    @Column(name = "google_sub", unique = true, nullable = true, length = 64)
+    private String googleSub;
+    
+    @Column(nullable = true, length = 20)
+    private String provider;
 
     @Column(nullable = false, length = 20)
     private String role;
@@ -97,6 +103,22 @@ public class Usuario {
 
     public void setFechaAlta(LocalDate fechaAlta) {
         this.fechaAlta = fechaAlta;
+    }
+
+    public String getGoogleSub() {
+        return googleSub;
+    }
+
+    public void setGoogleSub(String googleSub) {
+        this.googleSub = googleSub;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
     
 }

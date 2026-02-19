@@ -46,6 +46,14 @@ public class MusiclabApplication {
         u2.setFechaAlta(LocalDate.now());
         usuarioRepository.save(u2);
         
+        Usuario u3 = new Usuario();
+        u3.setUsername("Daniel");
+        u3.setEmail("daniel@gmail.com");
+        u3.setPassword(encoder.encode("1234"));
+        u3.setRole("USER");
+        u3.setFechaAlta(LocalDate.now());
+        usuarioRepository.save(u3);
+        
         // ======================
         // CATEGORÍAS
         // ======================

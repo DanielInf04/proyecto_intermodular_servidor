@@ -14,6 +14,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
+    Optional<Usuario> findByGoogleSub(String googleSub);
+    boolean existsByGoogleSub(String googleSub);
+    
     Optional<Usuario> findByUsername(String username); // -> Después quitar
 
     boolean existsByUsername(String username);
