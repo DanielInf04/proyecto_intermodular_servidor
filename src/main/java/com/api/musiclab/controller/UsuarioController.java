@@ -99,4 +99,20 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/api/users/{id}")
+    public ResponseEntity<UsuarioDTO> getById(@PathVariable Long id) {
+        Usuario u = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        UsuarioDTO dto = new UsuarioDTO(
+                u.getId(),
+                u.getUsername(),
+                u.getEmail(),
+                u.getRole(),
+                u.getFechaAlta()
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
 }

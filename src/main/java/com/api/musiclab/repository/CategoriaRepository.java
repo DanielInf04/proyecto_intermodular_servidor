@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author davidlema
  */
 public interface CategoriaRepository extends JpaRepository <Categoria,Long> {
-    
+    boolean existsByNombreIgnoreCase(String nombre);
+
 }

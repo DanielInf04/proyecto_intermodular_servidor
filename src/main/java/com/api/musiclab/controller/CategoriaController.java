@@ -4,8 +4,10 @@
  */
 package com.api.musiclab.controller;
 
+import com.api.musiclab.dto.CategoriaRequest;
 import com.api.musiclab.entities.Categoria;
 import com.api.musiclab.repository.CategoriaRepository;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/categories")
 public class CategoriaController {
+
     private final CategoriaRepository repository;
 
     public CategoriaController(CategoriaRepository repository) {
@@ -33,32 +36,51 @@ public class CategoriaController {
     public List<Categoria> getAll() {
         return repository.findAll();
     }
-    
+
     @GetMapping("/{id}")
     public Categoria getById(@PathVariable Long id) {
-      return repository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
     }
 
     @PostMapping
-    public Categoria create(@RequestBody Categoria categoria) {
+    public Categoria create(@Valid @RequestBody CategoriaRequest request) {
+
+        // Validación: nombre duplicado
+        if (repository.existsByNombreIgnoreCase(request.getNombre())) {
+            throw new RuntimeException("Ya existe una categoría con ese nombre");
+        }
+
+        Categoria categoria = new Categoria();
+        categoria.setNombre(request.getNombre().trim());
+
         return repository.save(categoria);
     }
-    
-    @PutMapping("/{id}")
-    public Categoria update(@PathVariable Long id, @RequestBody Categoria body) {
-        Categoria cat = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        cat.setNombre(body.getNombre());
-        System.out.println("UPDATE categoria id=" + id + " nombre=" + body.getNombre());
+    @PutMapping("/{id}")
+    public Categoria update(@PathVariable Long id, @Valid @RequestBody CategoriaRequest request) {
+
+        Categoria cat = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        // Validación: nombre duplicado (excepto si es la misma categoría)
+        if (repository.existsByNombreIgnoreCase(request.getNombre())
+                && !cat.getNombre().equalsIgnoreCase(request.getNombre())) {
+            throw new RuntimeException("Ya existe otra categoría con ese nombre");
+        }
+
+        cat.setNombre(request.getNombre().trim());
         return repository.save(cat);
     }
-    
+
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        System.out.println("DELETE categorias id=" + id);
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Categoría no encontrada");
+        }
+
         repository.deleteById(id);
     }
-    
 }
+
+
