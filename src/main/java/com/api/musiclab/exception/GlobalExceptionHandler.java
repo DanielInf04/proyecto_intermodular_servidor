@@ -42,16 +42,11 @@ public class GlobalExceptionHandler {
 
         String d = detail.toLowerCase();
 
-        // ✅ Si la DB está diciendo que el email ya existe → 409 con mensaje claro
-        // (esto funciona con muchos motores; si no, te digo abajo cómo afinarlo por índice)
         if (d.contains("email") && (d.contains("duplicate") || d.contains("unique") || d.contains("constraint"))) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ApiResponse("El correo ya está registrado"));
         }
 
-        // ✅ Si no es email duplicado, NO lo llames "duplicado":
-        // puede ser NOT NULL, longitud, FK, etc.
-        // Devuelve algo útil pero seguro.
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponse("No se pudo completar el registro. Revisa los datos e inténtalo de nuevo."));
     }

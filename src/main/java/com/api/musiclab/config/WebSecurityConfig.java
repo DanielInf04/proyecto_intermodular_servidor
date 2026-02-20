@@ -55,7 +55,8 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
                 )
                 
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), 
+                        UsernamePasswordAuthenticationFilter.class);
 
         // @formatter:on
         return http.build();

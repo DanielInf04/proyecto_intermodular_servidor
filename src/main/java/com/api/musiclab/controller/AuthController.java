@@ -105,7 +105,9 @@ public class AuthController {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
         // misma respuesta para "no existe" y "password mal"
-        if (usuarioOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), usuarioOpt.get().getPassword())) {
+        if (usuarioOpt.isEmpty() || 
+                !passwordEncoder.matches(request.getPassword(), 
+                        usuarioOpt.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Credenciales inválidas"));
         }
@@ -143,24 +145,5 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse("Usuario creado correctamente"));
     }
-    
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Usuario usuario) {
-
-        // Verificar si ya existe el username
-        if (usuarioRepository.findByUsername(usuario.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("El usuario ya existe");
-        }
-
-        // Encriptar contraseña
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-
-        // Asignar rol por defecto
-        usuario.setRole("USER");
-        usuario.setFechaAlta(LocalDate.now());
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
-
-        return ResponseEntity.ok(usuarioGuardado);
-    }*/
 
 }
