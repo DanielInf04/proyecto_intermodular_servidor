@@ -6,17 +6,20 @@ package com.api.musiclab.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  *
  * @author danig
  */
 public class SubCategoriaRequest {
-
+    @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
     @NotBlank
     private String nombre;
 
     private String imagenUrl;
+    
+    
 
     @NotNull
     private Long categoriaId;

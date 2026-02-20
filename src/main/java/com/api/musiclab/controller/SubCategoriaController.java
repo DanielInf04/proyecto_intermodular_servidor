@@ -49,21 +49,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api")
 public class SubCategoriaController {
-    
+
     private static final Logger log = LoggerFactory.getLogger(SubCategoriaController.class);
-    
-    private static final Path UPLOAD_DIR =
-        Paths.get("uploads", "subcategories").toAbsolutePath().normalize();
-    
+
+    private static final Path UPLOAD_DIR
+            = Paths.get("uploads", "subcategories").toAbsolutePath().normalize();
+
     private final SubCategoriaRepository subCategoriaRepository;
     private final CategoriaRepository categoriaRepository;
-    
+
     public SubCategoriaController(SubCategoriaRepository subCategoriaRepository,
-                                CategoriaRepository categoriaRepository) {
+            CategoriaRepository categoriaRepository) {
         this.subCategoriaRepository = subCategoriaRepository;
         this.categoriaRepository = categoriaRepository;
     }
-    
+
     @GetMapping("/subcategories")
     public ResponseEntity<List<SubCategoriaDTO>> listar(
             @RequestParam(name = "q", required = false) String q,
@@ -71,36 +71,36 @@ public class SubCategoriaController {
             @PageableDefault(size = 10) Pageable pageable
     ) {
         String baseUrl = ServletUriComponentsBuilder
-            .fromCurrentContextPath()
-            .build()
-            .toUriString();
-        
-         Page<SubCategoria> page = 
-            (cId != null && q != null && !q.isBlank())
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        Page<SubCategoria> page
+                = (cId != null && q != null && !q.isBlank())
                 ? subCategoriaRepository.findByCategoriaIdAndNombreContainingIgnoreCase(cId, q.trim(), pageable)
-            : (cId != null)
-                ? subCategoriaRepository.findByCategoriaId(cId, pageable)
-            : (q != null && !q.isBlank())
-                ? subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable)
-            : subCategoriaRepository.findAll(pageable);
-         
-         List<SubCategoriaDTO> dtoList = page.getContent().stream()
-            .map(sc -> {
-                SubCategoriaDTO dto = new SubCategoriaDTO(sc);
-                if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
-                    dto.setImagenUrl(baseUrl + dto.getImagenUrl());
-                }
-                return dto;
-            })
-            .toList();
+                : (cId != null)
+                        ? subCategoriaRepository.findByCategoriaId(cId, pageable)
+                        : (q != null && !q.isBlank())
+                        ? subCategoriaRepository.findByNombreContainingIgnoreCase(q.trim(), pageable)
+                        : subCategoriaRepository.findAll(pageable);
+
+        List<SubCategoriaDTO> dtoList = page.getContent().stream()
+                .map(sc -> {
+                    SubCategoriaDTO dto = new SubCategoriaDTO(sc);
+                    if (dto.getImagenUrl() != null && dto.getImagenUrl().startsWith("/")) {
+                        dto.setImagenUrl(baseUrl + dto.getImagenUrl());
+                    }
+                    return dto;
+                })
+                .toList();
 
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
                 .header("X-Total-Pages", String.valueOf(page.getTotalPages()))
                 .body(dtoList);
-                
+
     }
-    
+
     @GetMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoriaDTO> obtener(@PathVariable Long id) {
 
@@ -122,7 +122,7 @@ public class SubCategoriaController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @GetMapping("/categories/{categoryId}/subcategories")
     public ResponseEntity<List<SubCategoriaDTO>> listarPorCategoria(@PathVariable Long categoryId) {
 
@@ -149,28 +149,38 @@ public class SubCategoriaController {
         return ResponseEntity.ok(dtoList);
     }
 
-    
     @PostMapping("/subcategories")
     public ResponseEntity<?> crear(@Valid @RequestBody SubCategoriaRequest req) {
         Categoria categoria = categoriaRepository.findById(req.getCategoriaId()).orElse(null);
-        if (categoria == null) return ResponseEntity.notFound().build();
+        if (categoria == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         SubCategoria sc = new SubCategoria();
         sc.setNombre(req.getNombre().trim());
         sc.setCategoria(categoria);
         sc.setImagenUrl(null);
-
+        if (subCategoriaRepository.existsByNombreIgnoreCaseAndCategoriaId(
+                req.getNombre().trim(), req.getCategoriaId())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Ya existe una subcategoría con ese nombre en esta categoría");
+        }
         return ResponseEntity.ok(subCategoriaRepository.save(sc));
     }
-    
+
     @PutMapping(value = "/subcategories/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@PathVariable Long id,
-                                         @RequestParam("file") MultipartFile file) throws Exception {
+            @RequestParam("file") MultipartFile file) throws Exception {
 
         SubCategoria sc = subCategoriaRepository.findById(id).orElse(null);
-        if (sc == null) return ResponseEntity.notFound().build();
+        if (sc == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-        if (file == null || file.isEmpty()) return ResponseEntity.badRequest().body("Archivo vacío");
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Archivo vacío");
+        }
         if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             return ResponseEntity.badRequest().body("El archivo debe ser una imagen");
         }
@@ -193,24 +203,31 @@ public class SubCategoriaController {
         sc.setImagenUrl("/images/subcategories/" + filename);
         return ResponseEntity.ok(subCategoriaRepository.save(sc));
     }
-    
+
     @PutMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoria> actualizar(@PathVariable Long id,
-                                                @Valid @RequestBody SubCategoriaRequest req) {
+            @Valid @RequestBody SubCategoriaRequest req) {
 
         SubCategoria existente = subCategoriaRepository.findById(id).orElse(null);
-        if (existente == null) return ResponseEntity.notFound().build();
+        if (existente == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         Categoria categoria = categoriaRepository.findById(req.getCategoriaId()).orElse(null);
-        if (categoria == null) return ResponseEntity.notFound().build();
+        if (categoria == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         existente.setNombre(req.getNombre().trim());
         existente.setCategoria(categoria);
+        
+        
+        
 
         // ❌ NO tocar imagenUrl aquí
         return ResponseEntity.ok(subCategoriaRepository.save(existente));
     }
-    
+
     @DeleteMapping("/subcategories/{id}")
     @Transactional
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
@@ -232,14 +249,18 @@ public class SubCategoriaController {
     }
 
     private void borrarImagenSiExiste(String imagenUrl) {
-        if (imagenUrl == null || imagenUrl.isBlank()) return;
+        if (imagenUrl == null || imagenUrl.isBlank()) {
+            return;
+        }
 
         try {
             // imagenUrl puede ser "/images/subcategories/xxx.png" o URL completa
             String filename = imagenUrl.substring(imagenUrl.lastIndexOf('/') + 1);
             // por si viene con query params ?v=...
             int q = filename.indexOf('?');
-            if (q >= 0) filename = filename.substring(0, q);
+            if (q >= 0) {
+                filename = filename.substring(0, q);
+            }
 
             Path filePath = UPLOAD_DIR.resolve(filename).normalize();
 
@@ -255,5 +276,5 @@ public class SubCategoriaController {
             System.err.println("No se pudo borrar imagen: " + imagenUrl + " -> " + e.getMessage());
         }
     }
-    
+
 }
