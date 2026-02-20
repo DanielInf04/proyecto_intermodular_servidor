@@ -25,6 +25,8 @@ public interface SubCategoriaRepository extends JpaRepository<SubCategoria, Long
             Pageable pageable
     );
     
+    boolean existsByNombreIgnoreCaseAndCategoriaId(String nombre, Long categoriaId);
+    
     Page<SubCategoria> findByCategoriaId(Long categoriaId, Pageable pageable);
     
     List<SubCategoria> findByCategoriaId(Long categoriaId);
