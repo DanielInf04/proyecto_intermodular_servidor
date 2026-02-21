@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                 // Público (solo lectura)
                 .requestMatchers("/auth/**").permitAll()
                 //.requestMatchers("/images/**").permitAll()
-                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/images/**", "/uploads/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 //.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                 
