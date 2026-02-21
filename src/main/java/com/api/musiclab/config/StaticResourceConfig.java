@@ -21,7 +21,10 @@ public class StaticResourceConfig implements WebMvcConfigurer {
    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        Path uploadsDir = Paths.get("uploads").toAbsolutePath().normalize();
+        registry.addResourceHandler("/uploads/**")
+            .addResourceLocations("classpath:/static/uploads/");
+        
+        /*Path uploadsDir = Paths.get("uploads").toAbsolutePath().normalize();
         String uploadsUri = uploadsDir.toUri().toString();
         if (!uploadsUri.endsWith("/")) uploadsUri += "/";
 
@@ -33,6 +36,6 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         System.out.println("🧪 Existe? " + Files.exists(testFile));
 
         registry.addResourceHandler("/images/**")
-                .addResourceLocations(uploadsUri);
+                .addResourceLocations(uploadsUri);*/
     }
 }

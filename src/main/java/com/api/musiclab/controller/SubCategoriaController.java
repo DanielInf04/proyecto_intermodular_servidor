@@ -200,7 +200,7 @@ public class SubCategoriaController {
 
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
-        sc.setImagenUrl("/images/subcategories/" + filename);
+        sc.setImagenUrl("/uploads/subcategories/" + filename);
         return ResponseEntity.ok(subCategoriaRepository.save(sc));
     }
 

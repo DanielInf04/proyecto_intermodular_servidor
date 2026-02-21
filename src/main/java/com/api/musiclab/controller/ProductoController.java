@@ -228,7 +228,7 @@ public class ProductoController {
 
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
-        p.setImagen("/images/products/" + filename);
+        p.setImagen("/uploads/products/" + filename);
         return ResponseEntity.ok(repository.save(p));
     }
 
