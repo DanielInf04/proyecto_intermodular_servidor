@@ -60,6 +60,25 @@ public class ProductoController {
         this.subCategoriaRepository = subCategoriaRepository;
     }
     
+    @GetMapping("/products/random")
+    public ResponseEntity<List<ProductoDTO>> randomProducts(
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+
+        List<Producto> list = repository.findRandom(limit);
+
+        List<ProductoDTO> dtoList = list.stream().map(p -> {
+            ProductoDTO dto = new ProductoDTO(p);
+            if (dto.getImagen() != null && dto.getImagen().startsWith("/")) {
+                dto.setImagen(baseUrl + dto.getImagen());
+            }
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
+    
     @GetMapping("/products")
     public ResponseEntity<List<ProductoDTO>> listar(
             @RequestParam(required = false) String q,

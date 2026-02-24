@@ -28,6 +28,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
            """)
     Page<Producto> search(@Param("q") String q, Pageable pageable);*/
     
+    @Query(value = "SELECT * FROM producto ORDER BY RAND() LIMIT :limit", nativeQuery = true)
+    List<Producto> findRandom(@Param("limit") int limit);
+    
     @Query("""
         SELECT p
         FROM Producto p
